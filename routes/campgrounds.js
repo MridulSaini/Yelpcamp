@@ -1,8 +1,44 @@
 var express         =   require("express"),
     router          =   express.Router(),
     campground      =   require("../models/campgrounds"),
-    middleware      =   require("../middleware");
+    middleware      =   require("../middleware"),
+    nodemailer = require('nodemailer');
+router.get("/enquiry",function(req, res) {
+   res.render("campgrounds/enquiry"); 
+});
+
+router.post("/enquiry",function(req, res) {
     
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'mridulmali7@gmail.com',
+        pass: 'Million$'
+      }
+    });
+    
+    var mailOptions = {
+      from: '"Campground Enquiry!!"<mridulmali7@gmail.com>',
+      to: 'mridulmali@rocketmail.com',
+      subject: 'Enquiry',
+      text: 
+        'Name: '+req.body.name + '\n'+'Email: '+req.body.email+'\n'+'Enquiry: '+req.body.enquiry
+      };
+    
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) 
+      {
+        console.log(error);
+      }
+      else
+      {
+        console.log('Email sent: ' + info.response);
+      }
+      req.flash("success","Enquiry Submitted!");
+      res.redirect("/campgrounds");
+    });
+});
+
 router.get("/campgrounds",function(req,res){
     campground.find({},function(err,allcampgrounds){
         if(err)
